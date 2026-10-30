@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elevate Edge Interiors — Professional Quotation Maker</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="icon" type="image/jpg" href="../img/Elevate Edge Logo.jpg">
+
+  <!-- Google Fonts: Luxury Serif & Modern Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- External Export & Document Libraries via CDN -->
+  <!-- Microsoft Word (.docx) Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  
+  <!-- PDF Generation Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Word Document Reader / Reconciler -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Application Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <img id="headerCompanyLogo" src="assets/logo.png" alt="Elevate Edge Interiors" class="brand-logo-img" onerror="this.src='../assets/logo.png'">
+        <div class="brand-titles">
+          <h1>ELEVATE EDGE INTERIORS</h1>
+          <div class="brand-tagline">LET'S DESIGN YOUR DREAM SPACE TOGETHER.</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-gold" id="btnCreateNewQuote">
+          <i class="fas fa-plus-circle"></i> Create New Quotation
+        </button>
+        <button class="btn btn-outline-gold" id="btnOpenCatalogue">
+          <i class="fas fa-book-open"></i> Catalogue
+        </button>
+        <button class="btn btn-outline-gold" id="btnOpenSettings">
+          <i class="fas fa-sliders-h"></i> Settings
+        </button>
+        <button class="btn btn-outline-gold" id="btnOpenBackup" title="Backup & Restore">
+          <i class="fas fa-database"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App Container -->
+  <main class="app-container">
+
+    <!-- ================= VIEW 1: DASHBOARD ================= -->
+    <section id="viewDashboard" class="view-section active">
+      <div class="dashboard-top-bar">
+        <div class="dashboard-title-area">
+          <h2>Quotation Management Dashboard</h2>
+          <p>Create, track, customize, and export high-value luxury interior proposals.</p>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <button class="btn btn-sm btn-outline" id="btnExportRegisterCSV">
+            <i class="fas fa-file-csv"></i> Export Register (CSV)
+          </button>
+          <button class="btn btn-sm btn-danger-outline" onclick="app.clearSampleDataConfirm()" title="Clear sample demo records">
+            <i class="fas fa-eraser"></i> Clear Sample Data
+          </button>
+        </div>
+      </div>
+
+      <!-- Stat Cards Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Quotations</div>
+          <div class="stat-value" id="statTotalQuotes">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Drafts</div>
+          <div class="stat-value" id="statDraftQuotes">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Sent to Client</div>
+          <div class="stat-value" id="statSentQuotes">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Accepted</div>
+          <div class="stat-value" style="color:var(--color-success);" id="statAcceptedQuotes">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Rejected</div>
+          <div class="stat-value" style="color:var(--color-danger);" id="statRejectedQuotes">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Revised</div>
+          <div class="stat-value" style="color:var(--color-warning);" id="statRevisedQuotes">0</div>
+        </div>
+        <div class="stat-card stat-gold" style="grid-column: span 2;">
+          <div class="stat-label">Total Quoted Value</div>
+          <div class="stat-value gold-text" id="statTotalValue">₹ 0.00</div>
+        </div>
+      </div>
+
+      <!-- Status Filter Tabs -->
+      <div class="status-tabs" id="statusTabContainer">
+        <button class="tab-btn active" data-status="All">All Quotations</button>
+        <button class="tab-btn" data-status="Draft">Drafts</button>
+        <button class="tab-btn" data-status="Sent to Client">Sent to Client</button>
+        <button class="tab-btn" data-status="Accepted">Accepted</button>
+        <button class="tab-btn" data-status="Rejected">Rejected</button>
+        <button class="tab-btn" data-status="Revised">Revised</button>
+        <button class="tab-btn" data-status="Archived">Archived</button>
+      </div>
+
+      <!-- Search & Filters Bar -->
+      <div class="filter-card">
+        <div class="search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="dashboardSearchInput" placeholder="Search by Quotation No, Client Name, Phone, Project, Location...">
+        </div>
+        <div class="filter-actions">
+          <select class="filter-select" id="dateFilterSelect">
+            <option value="all">All Dates</option>
+            <option value="today">Today</option>
+            <option value="week">Past 7 Days</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+          <select class="filter-select" id="sortBySelect">
+            <option value="date_desc">Newest First</option>
+            <option value="date_asc">Oldest First</option>
+            <option value="amount_desc">Highest Value</option>
+            <option value="amount_asc">Lowest Value</option>
+            <option value="client_asc">Client Name (A-Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Quotations Table -->
+      <div class="quotations-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Quotation No & Date</th>
+              <th>Client Information</th>
+              <th>Project & Location</th>
+              <th>Revision</th>
+              <th>Status</th>
+              <th style="text-align:right;">Grand Total (₹)</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="quotationsTableBody">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+        <div id="quotationsEmptyState" style="display:none; text-align:center; padding:3.5rem 1rem; color:var(--color-text-muted);">
+          <i class="fas fa-folder-open" style="font-size:3rem; color:var(--color-gold); margin-bottom:1rem; opacity:0.8;"></i>
+          <h3 style="font-size:1.2rem; color:var(--color-primary); margin-bottom:0.4rem;">No quotations found</h3>
+          <p style="font-size:0.9rem; margin-bottom:1.5rem;">Try adjusting your search criteria or create a brand new quotation.</p>
+          <button class="btn btn-gold" onclick="app.createNewQuotation()">
+            <i class="fas fa-plus"></i> Create New Quotation
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 2: QUOTATION EDITOR ================= -->
+    <section id="viewEditor" class="view-section">
+      <!-- Editor Top Navigation Bar -->
+      <div class="editor-top-nav">
+        <div class="editor-title-box">
+          <button class="btn btn-sm btn-outline" id="btnBackToDashboard" onclick="app.confirmLeaveEditor()">
+            <i class="fas fa-arrow-left"></i> Dashboard
+          </button>
+          <span class="quote-number-pill" id="editorQuoteNumber">EEI/QTN/2026/0001</span>
+          <span class="revision-badge-pill" id="editorRevisionBadge">Rev 1</span>
+          <div class="save-indicator" id="saveStatusIndicator">
+            <i class="fas fa-check-circle" style="color:var(--color-success);"></i> All changes saved
+          </div>
+        </div>
+
+        <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+          <select class="form-control" id="editorStatusSelect" style="width:170px; font-weight:600; font-size:0.82rem;">
+            <option value="Draft">Draft</option>
+            <option value="Ready for Review">Ready for Review</option>
+            <option value="Approved Internally">Approved Internally</option>
+            <option value="Sent to Client">Sent to Client</option>
+            <option value="Accepted">Accepted</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Revision Requested">Revision Requested</option>
+            <option value="Revised">Revised</option>
+            <option value="Expired">Expired</option>
+            <option value="Archived">Archived</option>
+          </select>
+
+          <button class="btn btn-outline" id="btnSaveDraft" onclick="app.saveActiveQuotation(false)">
+            <i class="fas fa-save"></i> Save Draft
+          </button>
+          <button class="btn btn-outline" id="btnCreateRevision" onclick="app.openRevisionModal()">
+            <i class="fas fa-code-branch"></i> Create Revision
+          </button>
+          <button class="btn btn-outline" id="btnRevisionHistory" onclick="app.openRevisionHistoryModal()">
+            <i class="fas fa-history"></i> Revision History
+          </button>
+          <button class="btn btn-gold" id="btnLivePreview" onclick="app.openLivePreviewModal()">
+            <i class="fas fa-eye"></i> Live Preview
+          </button>
+          <button class="btn btn-primary" id="btnExportPdf" onclick="app.exportQuotationPdf()">
+            <i class="fas fa-file-pdf"></i> Export PDF
+          </button>
+          <button class="btn btn-outline" id="btnExportDocx" onclick="app.exportQuotationDocx()">
+            <i class="fas fa-file-word"></i> Export DOCX
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 1: Client & Project Information -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fas fa-user-tie" style="color:var(--color-gold);"></i> Client & Project Information
+          </div>
+          <span style="font-size:0.8rem; color:var(--color-text-muted);">* Essential client and site specifications</span>
+        </div>
+
+        <div class="form-grid">
+          <!-- Client Name with Auto-Suggest -->
+          <div class="form-group" style="position:relative;">
+            <label class="form-label">Client or Company Name <span class="required-star">*</span></label>
+            <input type="text" class="form-control" id="clientNameInput" placeholder="e.g. Mr. Rajesh Varma" required>
+            <div id="clientSuggestionsDropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#FFF; border:1px solid var(--color-border); border-radius:var(--radius-md); box-shadow:var(--shadow-lg); z-index:50; max-height:180px; overflow-y:auto;"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Contact Person</label>
+            <input type="text" class="form-control" id="clientContactPersonInput" placeholder="Name of primary contact">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Primary Mobile Number <span class="required-star">*</span></label>
+            <input type="text" class="form-control" id="clientMobileInput" placeholder="+91 98490 12345" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Alternate Mobile / WhatsApp</label>
+            <input type="text" class="form-control" id="clientAltMobileInput" placeholder="+91 89197 94276">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-control" id="clientEmailInput" placeholder="client@example.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Project Name <span class="required-star">*</span></label>
+            <input type="text" class="form-control" id="projectNameInput" placeholder="e.g. Palm Meadows 4BHK Villa" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Project Location</label>
+            <input type="text" class="form-control" id="projectLocationInput" placeholder="e.g. Jubilee Hills, Hyderabad">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Project Site Address</label>
+            <input type="text" class="form-control" id="projectSiteAddressInput" placeholder="Flat / Villa No., Community, Area">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Billing Address (if different)</label>
+            <input type="text" class="form-control" id="clientBillingAddressInput" placeholder="Registered billing address">
+          </div>
+
+          <!-- Metadata -->
+          <div class="form-group">
+            <label class="form-label">Quotation Number</label>
+            <input type="text" class="form-control" id="quoteNumberInput">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Quotation Date</label>
+            <input type="date" class="form-control" id="quoteDateInput">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Valid Until</label>
+            <input type="date" class="form-control" id="validityDateInput">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Quotation Prepared By</label>
+            <input type="text" class="form-control" id="quoteCreatedByInput" placeholder="e.g. Ar. Vikram Mehta">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Approved By</label>
+            <input type="text" class="form-control" id="quoteApprovedByInput" placeholder="e.g. Design Director">
+          </div>
+
+          <div class="form-group col-span-full">
+            <label class="form-label">Quotation Title</label>
+            <input type="text" class="form-control" id="quoteTitleInput" placeholder="Turnkey Luxury Interior Design & Execution Proposal">
+          </div>
+
+          <div class="form-group col-span-full">
+            <label class="form-label">Executive Scope / Project Overview (Cover Page)</label>
+            <textarea class="form-control" id="projectOverviewInput" rows="2" placeholder="Brief executive summary highlighting the scope, certified moisture-resistant materials, and bespoke craftsmanship..."></textarea>
+          </div>
+
+          <div class="form-group col-span-full">
+            <label class="form-label" style="color:var(--color-warning);">
+              <span><i class="fas fa-lock"></i> Internal Team Notes</span>
+              <span class="form-hint">* Private internal notes — will NEVER appear on client PDF or DOCX</span>
+            </label>
+            <textarea class="form-control" id="internalNotesInput" rows="2" placeholder="Private internal discussion notes, client preferences, margin targets..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Scope of Work & Interior Items -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <i class="fas fa-couch" style="color:var(--color-gold);"></i> Detailed Scope of Work & Line Items
+            </div>
+            <p style="font-size:0.82rem; color:var(--color-text-muted);">
+              Add modular items, woodwork, civil packages, and enter bulleted subpoints / specifications for each line item.
+            </p>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-sm btn-gold" id="btnAddItemFromCatalogue">
+              <i class="fas fa-book-open"></i> From Catalogue
+            </button>
+            <button class="btn btn-sm btn-outline" id="btnAddRoomPackage">
+              <i class="fas fa-boxes"></i> Room Packages
+            </button>
+            <button class="btn btn-sm btn-outline" id="btnAddCustomItem">
+              <i class="fas fa-plus"></i> Custom Item
+            </button>
+          </div>
+        </div>
+
+        <!-- Line items table container -->
+        <div id="editorItemsContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Card 3: Financial Summary & Discount Engine -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fas fa-calculator" style="color:var(--color-gold);"></i> Financial Calculations & Discount Engine
+          </div>
+          <span style="font-size:0.8rem; color:var(--color-text-muted);">Automatic real-time calculations</span>
+        </div>
+
+        <div class="pricing-summary-grid">
+          <!-- Left: Tax & Overall Discount Controls -->
+          <div>
+            <div style="background:#FBFDFB; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1rem;">
+              <h4 style="font-size:0.95rem; color:var(--color-primary); margin-bottom:1rem; font-weight:600;">
+                <i class="fas fa-percent"></i> Additional Overall Quotation Discount
+              </h4>
+              <div style="display:grid; grid-template-columns: 140px 1fr; gap:0.75rem;">
+                <div>
+                  <label class="form-label">Discount Type</label>
+                  <select class="form-control" id="overallDiscountType">
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="fixed">Fixed Amount (₹)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label">Discount Value</label>
+                  <input type="number" class="form-control" id="overallDiscountValue" min="0" step="any" placeholder="0">
+                </div>
+              </div>
+              <p class="form-hint" style="margin-top:0.5rem;">
+                Applied across the subtotal after item-level discounts. Example: 10% on ₹1,60,000 gives ₹1,44,000.
+              </p>
+            </div>
+
+            <div style="background:#FBFDFB; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h4 style="font-size:0.95rem; color:var(--color-primary); font-weight:600;">
+                  <i class="fas fa-receipt"></i> Taxes & Statutory Charges
+                </h4>
+                <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-weight:600; font-size:0.85rem;">
+                  <input type="checkbox" id="taxToggle" checked> Enable Tax
+                </label>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 100px; gap:0.75rem;">
+                <div>
+                  <label class="form-label">Tax Type</label>
+                  <select class="form-control" id="taxTypeSelect">
+                    <option value="GST_18">GST 18% (Composite)</option>
+                    <option value="CGST_SGST_9_9">CGST (9%) + SGST (9%)</option>
+                    <option value="IGST_18">IGST (18%)</option>
+                    <option value="CUSTOM">Custom Percentage</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label">Rate (%)</label>
+                  <input type="number" class="form-control" id="taxRateInput" value="18" min="0" step="any">
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Charges Section -->
+            <div style="background:#FBFDFB; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1.25rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <h4 style="font-size:0.95rem; color:var(--color-primary); font-weight:600;">
+                  <i class="fas fa-truck-moving"></i> Additional Charges
+                </h4>
+                <button type="button" class="btn btn-sm btn-outline" id="btnAddAdditionalCharge">
+                  <i class="fas fa-plus"></i> Add Charge
+                </button>
+              </div>
+              <div id="additionalChargesList">
+                <!-- Additional charge rows rendered here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Summary Totals -->
+          <div>
+            <div class="summary-breakdown-card">
+              <div class="summary-line">
+                <span>1. Total Amount Before Discounts:</span>
+                <strong id="summaryTotalBefore">₹ 0.00</strong>
+              </div>
+              <div class="summary-line" style="color:var(--color-danger);">
+                <span>2. Total Item-Level Discounts:</span>
+                <span id="summaryItemDiscounts">- ₹ 0.00</span>
+              </div>
+              <div class="summary-line" style="color:var(--color-danger);">
+                <span>3. Additional Overall Discount:</span>
+                <span id="summaryOverallDiscount">- ₹ 0.00</span>
+              </div>
+              <div class="summary-line" style="font-weight:600; border-top:1px dashed var(--color-border); padding-top:0.75rem;">
+                <span>4. Subtotal After Discounts:</span>
+                <strong id="summarySubtotal">₹ 0.00</strong>
+              </div>
+              <div class="summary-line">
+                <span>5. Applicable Taxes:</span>
+                <span id="summaryTaxAmount">+ ₹ 0.00</span>
+              </div>
+              <div class="summary-line">
+                <span>6. Additional Charges:</span>
+                <span id="summaryAdditionalCharges">+ ₹ 0.00</span>
+              </div>
+            </div>
+
+            <!-- Grand Total Highlight Banner -->
+            <div class="grand-total-banner">
+              <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; color:var(--color-gold);">
+                Final Payable Amount
+              </div>
+              <div class="grand-total-amount" id="summaryGrandTotal">
+                ₹ 0.00
+              </div>
+              <div class="grand-total-words" id="summaryGrandTotalWords">
+                Rupees Zero Only
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Terms and Conditions -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <i class="fas fa-file-contract" style="color:var(--color-gold);"></i> Quotation Terms & Conditions
+            </div>
+            <p style="font-size:0.82rem; color:var(--color-text-muted);">
+              Comprehensive 17+ clauses covering validity, scope, milestones, warranties, and jurisdiction.
+            </p>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-sm btn-outline" onclick="app.addTermClause()">
+              <i class="fas fa-plus"></i> Add Clause
+            </button>
+            <button class="btn btn-sm btn-outline" onclick="app.resetTermsToDefault()">
+              <i class="fas fa-undo"></i> Reset to Defaults
+            </button>
+          </div>
+        </div>
+
+        <div id="termsEditorContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Card 5: Project Payment Schedule & Milestone Table (Editable Bottom Table) -->
+      <div class="card" style="margin-top:1.5rem;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <i class="fas fa-tasks" style="color:var(--color-gold);"></i> Project Payment Schedule & Milestone Table (Bottom Table)
+            </div>
+            <p style="font-size:0.82rem; color:var(--color-text-muted);">
+              Customize milestone stages, percentages, and terms directly for this quotation. Appears at the bottom of the PDF.
+            </p>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-sm btn-outline" onclick="app.addPaymentMilestone()">
+              <i class="fas fa-plus"></i> Add Milestone
+            </button>
+            <button class="btn btn-sm btn-outline" onclick="app.resetPaymentScheduleToDefault()">
+              <i class="fas fa-undo"></i> Reset to Default Milestones
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="margin-bottom:0.75rem;">
+            <thead>
+              <tr>
+                <th style="width:30%;">Milestone Stage</th>
+                <th style="width:15%; text-align:right;">Share (%)</th>
+                <th>Trigger & Payment Terms</th>
+                <th style="width:80px; text-align:center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="paymentScheduleTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex; justify-content:flex-end; font-size:0.85rem; font-weight:600; padding:0.25rem 0.5rem;" id="paymentScheduleTotalNotice">
+          Total Share: 100%
+        </div>
+      </div>
+
+      <!-- Card 6: PDF Customization — Headings, Footers & Authorized Signatory -->
+      <div class="card" style="margin-top:1.5rem;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <i class="fas fa-edit" style="color:var(--color-gold);"></i> PDF Document Headings, Footers & Signatory Customization
+            </div>
+            <p style="font-size:0.82rem; color:var(--color-text-muted);">
+              Edit all document titles, section headers, footer notices, and signatory credentials for this PDF.
+            </p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Quotation Brand / Company Header Name</label>
+            <input type="text" class="form-control" id="pdfCompanyNameInput" 
+              placeholder="ELEVATE EDGE INTERIORS" 
+              oninput="app.updatePdfHeading('companyName', this.value)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Document Main Heading (Page 1 Banner)</label>
+            <input type="text" class="form-control" id="pdfDocumentHeadingInput" 
+              placeholder="INTERIOR DESIGN & EXECUTION QUOTATION" 
+              oninput="app.updatePdfHeading('documentHeading', this.value)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Proposal Subheading</label>
+            <input type="text" class="form-control" id="pdfProposalSubheadingInput" 
+              placeholder="Turnkey Luxury Interior Design & Execution Proposal" 
+              oninput="app.updatePdfHeading('title', this.value)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pricing Schedule Section Heading</label>
+            <input type="text" class="form-control" id="pdfTableHeadingInput" 
+              placeholder="SCOPE OF WORK & PRICING SCHEDULE" 
+              oninput="app.updatePdfHeading('tableHeading', this.value)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Terms & Conditions Section Heading</label>
+            <input type="text" class="form-control" id="pdfTermsHeadingInput" 
+              placeholder="TERMS AND CONDITIONS" 
+              oninput="app.updatePdfHeading('termsHeading', this.value)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Authorized Signatory Name & Title</label>
+            <input type="text" class="form-control" id="pdfAuthorizedRepInput" 
+              placeholder="Managing Partner & Principal Designer" 
+              oninput="app.updatePdfHeading('authorizedRepresentative', this.value)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Document Running Footer Statement</label>
+            <input type="text" class="form-control" id="pdfFooterNoteInput" 
+              placeholder="This is a computer-generated document. No physical signature is required." 
+              oninput="app.updatePdfHeading('footerNote', this.value)">
+          </div>
+
+          <!-- Quality & Specification Pillars Section (Editable, Addable, Deletable) -->
+          <div class="col-span-full" style="border-top:1px solid var(--color-border); padding-top:1.25rem; margin-top:0.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <label style="font-weight:600; font-size:0.92rem; color:var(--color-primary); display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                  <input type="checkbox" id="pdfShowPillarsToggle" checked onchange="app.toggleShowPillars(this.checked)">
+                  Page 1 Quality Assurance & Specification Pillars
+                </label>
+                <span class="form-hint">Customize, add, or delete the specification highlights (Carcass, Hardware, Warranty).</span>
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <button type="button" class="btn btn-sm btn-outline" onclick="app.addSpecificationPillar()">
+                  <i class="fas fa-plus"></i> Add Pillar
+                </button>
+                <button type="button" class="btn btn-sm btn-outline" onclick="app.resetPillarsToDefault()">
+                  <i class="fas fa-undo"></i> Reset Pillars
+                </button>
+              </div>
+            </div>
+            <div id="pillarsEditorContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:0.75rem;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Authorized Signature & Verification Blocks Section -->
+          <div class="col-span-full" style="border-top:1px solid var(--color-border); padding-top:1.25rem; margin-top:0.75rem;">
+            <div style="margin-bottom:0.75rem;">
+              <label style="font-weight:600; font-size:0.92rem; color:var(--color-primary); display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                <input type="checkbox" id="pdfShowSignatoryBlockToggle" checked onchange="app.toggleShowSignatoryBlock(this.checked)">
+                Page 1 Bottom Signature & Verification Blocks
+              </label>
+              <span class="form-hint">Customize or edit the Left Signatory Box and Right Official Verification Seal box.</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+              <!-- Left Signatory Box Editor -->
+              <div style="background:#FAFBFB; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1rem;">
+                <h5 style="color:var(--color-primary); font-size:0.88rem; margin-bottom:0.75rem;">Left Box: Authorized Signatory</h5>
+                <div class="form-group" style="margin-bottom:0.5rem;">
+                  <label class="form-label" style="font-size:0.75rem;">Box Title</label>
+                  <input type="text" class="form-control" style="font-size:0.8rem;" id="pdfSignBoxTitleInput" 
+                    placeholder="FOR ELEVATE EDGE INTERIORS" 
+                    oninput="app.updateSignatoryBoxField('title', this.value)">
+                </div>
+                <div class="form-group" style="margin-bottom:0.5rem;">
+                  <label class="form-label" style="font-size:0.75rem;">Signatory Name & Designation</label>
+                  <input type="text" class="form-control" style="font-size:0.8rem;" id="pdfSignBoxNameInput" 
+                    placeholder="Managing Partner & Principal Designer" 
+                    oninput="app.updateSignatoryBoxField('name', this.value)">
+                </div>
+                <div class="form-group" style="margin-bottom:0.5rem;">
+                  <label class="form-label" style="font-size:0.75rem;">Location / Subtitle</label>
+                  <input type="text" class="form-control" style="font-size:0.8rem;" id="pdfSignBoxSubtitleInput" 
+                    placeholder="Official Authorized Signatory | Hyderabad" 
+                    oninput="app.updateSignatoryBoxField('subtitle', this.value)">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:0.75rem;">Signature Line / Seal Label</label>
+                  <input type="text" class="form-control" style="font-size:0.8rem;" id="pdfSignBoxLineInput" 
+                    placeholder="Signature & Seal: ________________________" 
+                    oninput="app.updateSignatoryBoxField('signatureLine', this.value)">
+                </div>
+              </div>
+
+              <!-- Right Issuance Verification Box Editor -->
+              <div style="background:#FAFBFB; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1rem;">
+                <h5 style="color:var(--color-primary); font-size:0.88rem; margin-bottom:0.75rem;">Right Box: Official Issuance & Verification</h5>
+                <div class="form-group" style="margin-bottom:0.5rem;">
+                  <label class="form-label" style="font-size:0.75rem;">Box Title</label>
+                  <input type="text" class="form-control" style="font-size:0.8rem;" id="pdfIssuanceBoxTitleInput" 
+                    placeholder="OFFICIAL ISSUANCE & VERIFICATION" 
+                    oninput="app.updateIssuanceBoxField('title', this.value)">
+                </div>
+                <div class="form-group" style="margin-bottom:0.5rem;">
+                  <label class="form-label" style="font-size:0.75rem;">Issuance Reference Template</label>
+                  <input type="text" class="form-control" style="font-size:0.8rem;" id="pdfIssuanceBoxRefInput" 
+                    placeholder="Issuance Reference: {Quotation Number}" 
+                    oninput="app.updateIssuanceBoxField('refText', this.value)">
+                </div>
+                <div class="form-group" style="margin-bottom:0.5rem;">
+                  <label class="form-label" style="font-size:0.75rem;">Scope Verification Template</label>
+                  <input type="text" class="form-control" style="font-size:0.8rem;" id="pdfIssuanceBoxScopeInput" 
+                    placeholder="Scope Verified: {Item Count} Custom Interior Work Items" 
+                    oninput="app.updateIssuanceBoxField('scopeText', this.value)">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:0.75rem;">Validity Notice</label>
+                  <input type="text" class="form-control" style="font-size:0.8rem;" id="pdfIssuanceBoxValidityInput" 
+                    placeholder="Turnkey Proposal Valid for 30 Days from Issuance" 
+                    oninput="app.updateIssuanceBoxField('validityText', this.value)">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= MODAL 1: LIVE PREVIEW MODAL (SECTION 11 & 18) ================= -->
+  <div class="modal-overlay" id="livePreviewModal">
+    <div class="modal-card modal-full">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-file-invoice" style="color:var(--color-gold);"></i> Quotation Live Preview (A4 Print Simulation)
+        </div>
+        <div style="display:flex; gap:0.6rem; align-items:center;">
+          <button class="btn btn-sm btn-primary" onclick="app.exportQuotationPdf()">
+            <i class="fas fa-download"></i> Download PDF
+          </button>
+          <button class="btn btn-sm btn-outline" onclick="pdfExporter.printQuotation()">
+            <i class="fas fa-print"></i> Print / Save PDF via Browser
+          </button>
+          <button class="btn btn-sm btn-gold" onclick="app.exportQuotationDocx()">
+            <i class="fas fa-file-word"></i> Export DOCX
+          </button>
+          <button class="btn btn-sm btn-outline modal-close-btn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="preview-modal-body" id="previewSheetsContainer">
+        <!-- Exact multi-page A4 preview sheets rendered here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: REVISION CREATION MODAL ================= -->
+  <div class="modal-overlay" id="revisionModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-code-branch" style="color:var(--color-gold);"></i> Create Quotation Revision
+        </div>
+        <button class="btn btn-icon-only modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.9rem; color:var(--color-text-main); margin-bottom:1rem;">
+          Creating a revision preserves the original quotation and locks historical records. A new revision identifier will be assigned.
+        </p>
+        <div style="background:#F9FAF9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1rem; margin-bottom:1rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+            <span>Target Revision:</span>
+            <strong id="revisionNumberField">Rev 2</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span>Current Revised Grand Total:</span>
+            <strong id="revisionCurrentTotal">₹ 0.00</strong>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Revision Changelog / Notes <span class="required-star">*</span></label>
+          <textarea class="form-control" id="revisionNotesInput" rows="3" placeholder="e.g. Added 2 dining chairs and 1 side table as requested by client on WhatsApp."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close-btn">Cancel</button>
+        <button class="btn btn-gold" onclick="app.confirmCreateRevision()">
+          <i class="fas fa-check"></i> Save as New Revision
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: CATALOGUE PICKER MODAL ================= -->
+  <div class="modal-overlay" id="cataloguePickerModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-book-open" style="color:var(--color-gold);"></i> Built-in Interior Items Catalogue
+        </div>
+        <button class="btn btn-icon-only modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center;">
+          <input type="text" class="form-control" id="pickerSearchInput" style="flex:1; min-width:200px;" 
+            placeholder="Search items by name, specification, material..." 
+            oninput="app.renderCataloguePickerList(document.getElementById('pickerCategoryFilter').value, this.value)">
+          <select class="form-control" id="pickerCategoryFilter" style="width:190px;" 
+            onchange="app.renderCataloguePickerList(this.value, document.getElementById('pickerSearchInput').value)">
+            <option value="All Categories">All Categories</option>
+            <option value="Living Room">Living Room</option>
+            <option value="Bedroom">Bedroom</option>
+            <option value="Kitchen">Kitchen</option>
+            <option value="Dining Room">Dining Room</option>
+            <option value="Bathroom">Bathroom</option>
+            <option value="Office and Commercial">Office & Commercial</option>
+            <option value="General Interior Works">General Works</option>
+          </select>
+          <button class="btn btn-sm btn-gold" onclick="app.openNewCatalogueItemModal('picker')" style="white-space:nowrap;">
+            <i class="fas fa-plus-circle"></i> + Create Custom Item
+          </button>
+        </div>
+        <div id="cataloguePickerList" style="max-height:480px; overflow-y:auto;">
+          <!-- Items rendered here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 4: ROOM PACKAGES MODAL ================= -->
+  <div class="modal-overlay" id="roomPackagesModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-boxes" style="color:var(--color-gold);"></i> Luxury Room Packages & Templates
+        </div>
+        <button class="btn btn-icon-only modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+          <div style="display:flex; gap:0.5rem; flex:1; min-width:280px; max-width:520px;">
+            <input type="text" class="form-control" id="pkgSearchInput" placeholder="Search packages by name or room..." 
+              oninput="app.renderRoomPackagesList(this.value, document.getElementById('pkgCategoryFilter').value)">
+            <select class="form-control" id="pkgCategoryFilter" style="width:170px;" 
+              onchange="app.renderRoomPackagesList(document.getElementById('pkgSearchInput').value, this.value)">
+              <option value="All Categories">All Packages</option>
+              <option value="Living Room">Living Room</option>
+              <option value="Bedroom">Bedroom</option>
+              <option value="Kitchen">Kitchen</option>
+              <option value="Dining Room">Dining Room</option>
+              <option value="General Interior Works">Turnkey Full Home</option>
+              <option value="Office and Commercial">Office / Commercial</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-sm btn-gold" onclick="app.openNewRoomPackageModal()">
+              <i class="fas fa-plus-circle"></i> + Create Custom Package
+            </button>
+            <button class="btn btn-sm btn-outline-gold" onclick="app.saveCurrentQuoteAsPackage()" title="Save all items in active quotation as a new reusable package">
+              <i class="fas fa-bookmark"></i> Save Quote as Package
+            </button>
+            <button class="btn btn-sm btn-outline" onclick="app.resetPackagesConfirm()">
+              <i class="fas fa-undo"></i> Reset Defaults
+            </button>
+          </div>
+        </div>
+        <div id="roomPackagesList" style="max-height:550px; overflow-y:auto;">
+          <!-- Room packages rendered dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 5: COMPANY SETTINGS MODAL ================= -->
+  <div class="modal-overlay" id="companySettingsModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-sliders-h" style="color:var(--color-gold);"></i> Company Details & Global Settings
+        </div>
+        <button class="btn btn-icon-only modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group col-span-full" style="background:#F9FAF9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1rem; display:flex; align-items:center; gap:1.5rem;">
+            <img id="settingsLogoPreview" src="assets/logo.png" style="height:60px; width:auto; border-radius:4px; border:1px solid #CCC; background:#FFF; padding:4px;" alt="Logo Preview">
+            <div style="flex:1;">
+              <label class="form-label">Upload Official Company Logo</label>
+              <input type="file" id="settingsLogoUpload" accept="image/*" class="form-control" style="font-size:0.8rem;">
+              <span class="form-hint">Upload PNG/JPG logo to appear on all quotations and exports.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Company Name</label>
+            <input type="text" class="form-control" id="settingsCompanyName">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Company Slogan / Tagline</label>
+            <input type="text" class="form-control" id="settingsTagline">
+          </div>
+
+          <div class="form-group col-span-full">
+            <label class="form-label">Registered / Business Office Address</label>
+            <input type="text" class="form-control" id="settingsAddress">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Primary Mobile Number</label>
+            <input type="text" class="form-control" id="settingsPrimaryMobile">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Additional Contact / WhatsApp</label>
+            <input type="text" class="form-control" id="settingsAdditionalMobile">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Official Business Email</label>
+            <input type="email" class="form-control" id="settingsEmail">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Website</label>
+            <input type="text" class="form-control" id="settingsWebsite">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">GSTIN</label>
+            <input type="text" class="form-control" id="settingsGstin">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Default Validity Period (Days)</label>
+            <input type="number" class="form-control" id="settingsValidityDays" value="30">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Authorized Representative Title</label>
+            <input type="text" class="form-control" id="settingsAuthorizedRep">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Default Quotation Creator</label>
+            <input type="text" class="form-control" id="settingsDefaultCreator">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Default Approver</label>
+            <input type="text" class="form-control" id="settingsDefaultApprover">
+          </div>
+
+          <div class="form-group col-span-full">
+            <label class="form-label">Default Document Footer Statement</label>
+            <input type="text" class="form-control" id="settingsFooterNote">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close-btn">Cancel</button>
+        <button class="btn btn-gold" onclick="app.saveCompanySettings()">
+          <i class="fas fa-save"></i> Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 6: CATALOGUE MANAGER MODAL ================= -->
+  <div class="modal-overlay" id="catalogueManagerModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-boxes" style="color:var(--color-gold);"></i> Manage Interior Items Catalogue
+        </div>
+        <button class="btn btn-icon-only modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+          <div style="display:flex; gap:0.5rem; flex:1; min-width:280px; max-width:500px;">
+            <input type="text" class="form-control" placeholder="Search catalogue..." 
+              oninput="app.renderCatalogueManagerTable(this.value, document.getElementById('catManagerCategoryFilter').value)">
+            <select class="form-control" id="catManagerCategoryFilter" style="width:170px;" 
+              onchange="app.renderCatalogueManagerTable(document.querySelector('#catalogueManagerModal input').value, this.value)">
+              <option value="All Categories">All Categories</option>
+              <option value="Living Room">Living Room</option>
+              <option value="Bedroom">Bedroom</option>
+              <option value="Kitchen">Kitchen</option>
+              <option value="Dining Room">Dining Room</option>
+              <option value="Bathroom">Bathroom</option>
+              <option value="Office and Commercial">Office & Commercial</option>
+              <option value="General Interior Works">General Works</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-sm btn-gold" onclick="app.openNewCatalogueItemModal('manager')">
+              <i class="fas fa-plus-circle"></i> + Add Item to Catalogue
+            </button>
+            <button class="btn btn-sm btn-outline" onclick="app.resetCatalogueConfirm()">
+              <i class="fas fa-undo"></i> Reset to Default
+            </button>
+          </div>
+        </div>
+        <div style="max-height:450px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius-md);">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th style="text-align:right;">Indicative Price (₹)</th>
+                <th>Specifications</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="catalogueManagerTbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: ADD / EDIT CATALOGUE ITEM ================= -->
+  <div class="modal-overlay" id="catalogueItemModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title" id="catalogueItemModalTitle">
+          <i class="fas fa-cube" style="color:var(--color-gold);"></i> Add New Catalogue Item
+        </div>
+        <button class="btn btn-icon-only modal-close-btn" onclick="app.closeCatalogueItemModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="catItemEditId">
+        <input type="hidden" id="catItemSource">
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <label class="form-label required">Item Name</label>
+            <input type="text" class="form-control" id="catItemName" placeholder="e.g. Fluted Marble Console Unit">
+          </div>
+          <div>
+            <label class="form-label required">Category</label>
+            <select class="form-control" id="catItemCategory">
+              <option value="Living Room">Living Room</option>
+              <option value="Bedroom">Bedroom</option>
+              <option value="Kitchen">Kitchen</option>
+              <option value="Dining Room">Dining Room</option>
+              <option value="Bathroom">Bathroom</option>
+              <option value="Office and Commercial">Office & Commercial</option>
+              <option value="General Interior Works" selected>General Interior Works</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label required">Standard Unit</label>
+            <select class="form-control" id="catItemUnit">
+              <option value="Nos.">Nos.</option>
+              <option value="Sq. ft.">Sq. ft.</option>
+              <option value="Running ft.">Running ft.</option>
+              <option value="Lot">Lot</option>
+              <option value="Job">Job</option>
+              <option value="Set">Set</option>
+              <option value="Custom unit">Custom unit</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 2fr; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <label class="form-label required">Indicative Unit Price (₹)</label>
+            <input type="number" class="form-control" id="catItemPrice" min="0" step="any" placeholder="0.00" style="font-weight:600; color:var(--color-primary);">
+          </div>
+          <div>
+            <label class="form-label">Special Note / Finishes (Optional)</label>
+            <input type="text" class="form-control" id="catItemNotes" placeholder="e.g. Champagne gold trim, includes soft-close hardware...">
+          </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <label class="form-label">Detailed Description</label>
+          <textarea class="form-control" id="catItemDescription" style="min-height:55px;" placeholder="Comprehensive luxury specification and materials description..."></textarea>
+        </div>
+
+        <div class="subpoints-box" style="margin-bottom:0.5rem;">
+          <div class="subpoints-header">
+            <span><i class="fas fa-list-ul"></i> Key Specifications & Subpoints (<span id="catItemSubpointCount">0</span>)</span>
+            <button type="button" class="btn btn-sm btn-outline" onclick="app.addCatItemSubpointInput()">
+              <i class="fas fa-plus"></i> Add Subpoint
+            </button>
+          </div>
+          <ul class="subpoint-list" id="catItemSubpointsList">
+            <!-- Dynamically populated -->
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="app.closeCatalogueItemModal()">Cancel</button>
+        <button type="button" class="btn btn-gold" onclick="app.saveCatalogueItemForm()">
+          <i class="fas fa-save"></i> Save to Catalogue
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: CREATE / EDIT ROOM PACKAGE ================= -->
+  <div class="modal-overlay" id="roomPackageModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title" id="roomPackageModalTitle">
+          <i class="fas fa-boxes" style="color:var(--color-gold);"></i> Create Custom Room Package
+        </div>
+        <button class="btn btn-icon-only modal-close-btn" onclick="app.closeRoomPackageModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="pkgEditId">
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <label class="form-label required">Package Name</label>
+            <input type="text" class="form-control" id="pkgName" placeholder="e.g. Minimalist Master Bedroom Package">
+          </div>
+          <div>
+            <label class="form-label required">Room Category</label>
+            <select class="form-control" id="pkgCategory">
+              <option value="Living Room">Living Room</option>
+              <option value="Bedroom">Bedroom</option>
+              <option value="Kitchen">Kitchen</option>
+              <option value="Dining Room">Dining Room</option>
+              <option value="General Interior Works" selected>Turnkey Full Home</option>
+              <option value="Office and Commercial">Office / Commercial</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1.25rem;">
+          <label class="form-label">Package Description</label>
+          <textarea class="form-control" id="pkgDescription" style="min-height:50px;" placeholder="Summary of what is included in this package..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h4 style="color:var(--color-primary); font-size:0.95rem; display:flex; align-items:center; gap:6px;">
+            <i class="fas fa-cubes" style="color:var(--color-gold);"></i> Package Line Items (<span id="pkgItemCount">0</span> items)
+          </h4>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" class="btn btn-sm btn-outline-gold" onclick="app.addPackageItemFromCataloguePicker()">
+              <i class="fas fa-book-open"></i> Pick from Catalogue
+            </button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="app.addBlankPackageItemRow()">
+              <i class="fas fa-plus"></i> Add Custom Item
+            </button>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--color-border); border-radius:var(--radius-md); overflow:hidden; max-height:280px; overflow-y:auto; margin-bottom:1rem;">
+          <table class="data-table" style="font-size:0.82rem;">
+            <thead>
+              <tr>
+                <th style="width:38%;">Item Name & Category</th>
+                <th style="width:12%;">Unit</th>
+                <th style="width:12%; text-align:right;">Qty</th>
+                <th style="width:16%; text-align:right;">Unit Price (₹)</th>
+                <th style="width:16%; text-align:right;">Total (₹)</th>
+                <th style="width:6%; text-align:center;"></th>
+              </tr>
+            </thead>
+            <tbody id="pkgItemsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; align-items:center; gap:1rem; padding:0.6rem 0.9rem; background:#F8FAF9; border-radius:var(--radius-sm); border:1px solid var(--color-border-subtle);">
+          <span style="font-size:0.85rem; color:var(--color-text-muted); font-weight:500;">Estimated Package Total Value:</span>
+          <strong style="font-size:1.15rem; color:var(--color-primary);" id="pkgEstimatedTotal">₹ 0.00</strong>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="app.closeRoomPackageModal()">Cancel</button>
+        <button type="button" class="btn btn-gold" onclick="app.saveRoomPackageForm()">
+          <i class="fas fa-save"></i> Save Room Package
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 7: REVISION HISTORY MODAL (SECTION 14 & 15) ================= -->
+  <div class="modal-overlay" id="revisionHistoryModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-history" style="color:var(--color-gold);"></i> Quotation Revision History & Audit Log
+        </div>
+        <button class="btn btn-icon-only modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.88rem; color:var(--color-text-muted); margin-bottom:1.25rem;">
+          Track every revision created for this quotation. Inspect changelogs, previous totals, and compare line-item modifications.
+        </p>
+        <div id="revisionHistoryTimeline">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 8: REVISION DIFF & COMPARISON MODAL ================= -->
+  <div class="modal-overlay" id="revisionDiffModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-columns" style="color:var(--color-gold);"></i> Revision Item Comparison & Diff Analysis
+        </div>
+        <button class="btn btn-icon-only modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="revisionDiffContent">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 9: DATABASE BACKUP & RESTORE MODAL ================= -->
+  <div class="modal-overlay" id="backupModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-database" style="color:var(--color-gold);"></i> Database Backup & Restore
+        </div>
+        <button class="btn btn-icon-only modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="background:#F9FAF9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1.5rem;">
+          <h4 style="color:var(--color-primary); font-size:1rem; margin-bottom:0.4rem;">Export Complete Database (JSON)</h4>
+          <p style="font-size:0.85rem; color:var(--color-text-muted); margin-bottom:1rem;">
+            Download all stored quotations, revisions, company settings, client directories, and custom catalogues in a single structured backup file.
+          </p>
+          <button class="btn btn-primary" onclick="app.downloadDatabaseBackup()">
+            <i class="fas fa-file-download"></i> Download JSON Backup
+          </button>
+        </div>
+
+        <div style="background:#F9FAF9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:1.25rem;">
+          <h4 style="color:var(--color-primary); font-size:1rem; margin-bottom:0.4rem;">Restore Database from Backup</h4>
+          <p style="font-size:0.85rem; color:var(--color-text-muted); margin-bottom:1rem;">
+            Upload a previously exported JSON backup file to restore records.
+          </p>
+          <input type="file" id="restoreFileInput" accept=".json" class="form-control" onchange="app.handleRestoreUpload(event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="logo-base64.js"></script>
+  <script src="catalogue-data.js"></script>
+  <script src="storage.js"></script>
+  <script src="docx-generator.js"></script>
+  <script src="pdf-generator.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
